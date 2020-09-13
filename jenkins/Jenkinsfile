@@ -8,6 +8,7 @@ node('docker && python') {
 
     stage('Build colrates reverse proxy') {
         sh "python3 colrates/src/manage.py collectstatic --noinput"
+        sh "pip install -r requirements.txt"
         proxy = docker.build("davydstoppel/colrates-proxy", "nginx")
     }
 
