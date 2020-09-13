@@ -6,13 +6,18 @@ RUN apt-get update && apt-get install postgresql gcc python3-dev musl-dev -y --n
 RUN mkdir /opt/rates-collector
 WORKDIR /opt/rates-collector
 
-ADD ecbrates/src/ ./
-ADD ecbrates/start-server.sh .
+ADD colrates/src ./
+ADD colrates/start-server.sh .
 ADD requirements.txt .
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV DJANGO_SETTINGS_MODULE ecbrates.settings.prod
+ENV DATABASE_USER admin
+ENV DATABASE_PASSWORD password
+ENV DATABASE_HOST localhost
+ENV DATABASE_PORT 5432
+ENV DATABASE_NAME colrates
 
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt

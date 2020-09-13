@@ -1,35 +1,29 @@
-node('docker') {
-    def app
+node('docker && python') {
+    def proxy
+    def colrates
 
     stage('Clone repository') {
-        /* Let's make sure we have the repository cloned to our workspace */
         checkout scm
     }
 
-    stage('Build image') {
-        /* This builds the actual image; synonymous to
-         * docker build on the command line */
-
-        app = docker.build("davydstoppel/colrates")
+    stage('Build colrates reverse proxy') {
+        sh "python colrates/src/manage.py collectstatic --noinput"
+        proxy = docker.build("davydstoppel/colrates-proxy", "nginx")
     }
 
-//     stage('Test image') {
-//         /* Ideally, we would run a test framework against our image.
-//          * For this example, we're using a Volkswagen-type approach ;-) */
-//
-//         app.inside {
-//             sh 'echo "Tests passed"'
-//         }
-//     }
+    stage('Build colrates image') {
+        colrates = docker.build("davydstoppel/colrates", "-f colrates/Dockerfile .")
+    }
 
-    stage('Push image') {
-        /* Finally, we'll push the image with two tags:
-         * First, the incremental build number from Jenkins
-         * Second, the 'latest' tag.
-         * Pushing multiple tags is cheap, as all the layers are reused. */
+    stage('Push colrates reverse proxy image') {
         docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
+            proxy.push("latest")
+        }
+    }
+
+    stage('Push colrates image') {
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+            colrates.push("latest")
         }
     }
 }

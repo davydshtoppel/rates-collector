@@ -2,6 +2,7 @@ from .common import *
 
 import os
 
+
 SECRET_KEY = 'ip8x7v(vmlug3zu+pqix_5@zw)&4ku@+dvv(rr&fw9q7m4m1wd'
 
 DEBUG = False
@@ -11,15 +12,14 @@ ALLOWED_HOSTS = ["localhost",  "127.0.0.1"]
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'colrates',
+        'NAME': f"{os.getenv('DATABASE_NAME')}",
         'ATOMIC_REQUESTS': 'True',
-        "USER": "shtodav",
-        "PASSWORD": "secret",
-        "HOST": "postgres",
-        "PORT": "5432",
+        "USER": f"{os.getenv('DATABASE_USER')}",
+        "PASSWORD": f"{os.getenv('DATABASE_PASSWORD')}",
+        "HOST": f"{os.getenv('DATABASE_HOST')}",
+        "PORT": f"{os.getenv('DATABASE_PORT')}",
     }
 }
-
 
 LOGGING = {
     'version': 1,
@@ -39,6 +39,10 @@ LOGGING = {
     },
     'loggers': {
         'root': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'django': {
             'handlers': ['console'],
             'propagate': True,
         },
