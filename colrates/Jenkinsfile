@@ -32,10 +32,10 @@ node('docker') {
             )
         ]) {
             colrates.run("""--name $container --network=depl1 \
-                 -e DJANGO_SUPERUSER_USERNAME=${params.DJANGO_SUPERUSER_USERNAME} \
-                 -e DJANGO_SUPERUSER_PASSWORD=${params.DJANGO_SUPERUSER_PASSWORD} \
-                 -e DATABASE_USER=${params.DATABASE_USER} \
-                 -e DATABASE_PASSWORD=${params.DATABASE_PASSWORD} \
+                 -e DJANGO_SUPERUSER_USERNAME=$DJANGO_SUPERUSER_USERNAME \
+                 -e DJANGO_SUPERUSER_PASSWORD=$DJANGO_SUPERUSER_PASSWORD \
+                 -e DATABASE_USER=$DATABASE_USER \
+                 -e DATABASE_PASSWORD=$DATABASE_PASSWORD \
                  -e DATABASE_HOST=${params.DATABASE_HOST} \
                  -e DATABASE_PORT=${params.DATABASE_PORT} \
                  -e DATABASE_NAME=${params.DATABASE_NAME}""")
