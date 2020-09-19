@@ -1,0 +1,28 @@
+node('docker && python') {
+    def proxy
+
+    stage('Clone repository') {
+        checkout scm
+    }
+
+    stage('Build image') {
+        dir('colrates/src') {
+            sh 'pip install -r requirements.txt'
+            sh 'python3 manage.py collectstatic --noinput'
+        }
+        dir('nginx') {
+            proxy = docker.build('davydstoppel/colrates-proxy')
+        }
+    }
+
+    stage('Run container') {
+        sh "docker rm colrates-proxy"
+        proxy.run('--name colrates-proxy -d --restart=always -e RATES_HOST=${params.RATES_HOST} -e RATES_PORT=${params.RATES_PORT}')
+    }
+
+    stage('Push image') {
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+            proxy.push('latest')
+        }
+    }
+}
