@@ -1,0 +1,50 @@
+node('docker') {
+    def colrates
+
+    stage('Clone repository') {
+        checkout scm
+    }
+
+    stage('Build image') {
+        colrates = docker.build("davydstoppel/colrates", "-f colrates/Dockerfile .")
+    }
+
+    stage('Run container') {
+        def container = 'colrates'
+        try {
+            sh "docker stop $container"
+        } catch (err) {
+        }
+        try {
+            sh "docker rm $container"
+        } catch (err) {
+        }
+        withCredentials([
+            usernamePassword(
+                credentialsId: "$DJANGO_SUPERUSER",
+                usernameVariable: 'DJANGO_SUPERUSER_USERNAME',
+                passwordVariable: 'DJANGO_SUPERUSER_PASSWORD',
+            ),
+            usernamePassword(
+                credentialsId: "$DATABASE_CREDENTIALS",
+                usernameVariable: 'DATABASE_USER',
+                passwordVariable: 'DATABASE_PASSWORD',
+            )
+        ]) {
+            colrates.run("""--name $container --network=depl1 \
+                 -e DJANGO_SUPERUSER_USERNAME=${params.DJANGO_SUPERUSER_USERNAME} \
+                 -e DJANGO_SUPERUSER_PASSWORD=${params.DJANGO_SUPERUSER_PASSWORD} \
+                 -e DATABASE_USER=${params.DATABASE_USER} \
+                 -e DATABASE_PASSWORD=${params.DATABASE_PASSWORD} \
+                 -e DATABASE_HOST=${params.DATABASE_HOST} \
+                 -e DATABASE_PORT=${params.DATABASE_PORT} \
+                 -e DATABASE_NAME=${params.DATABASE_NAME}""")
+        }
+    }
+
+    stage('Push image') {
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+            colrates.push("latest")
+        }
+    }
+}

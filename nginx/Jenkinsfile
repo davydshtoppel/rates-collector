@@ -25,7 +25,7 @@ node('docker && python') {
             sh "docker rm $container"
         } catch (err) {
         }
-        proxy.run("--name $container --restart=always -e RATES_HOST=${params.RATES_HOST} -e RATES_PORT=${params.RATES_PORT}")
+        proxy.run("--name $container --network=depl1 -e RATES_HOST=${params.RATES_HOST} -e RATES_PORT=${params.RATES_PORT}")
     }
 
     stage('Push image') {
