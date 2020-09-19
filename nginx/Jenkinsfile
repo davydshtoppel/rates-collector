@@ -16,11 +16,15 @@ node('docker && python') {
     }
 
     stage('Run container') {
-        catchError {
+        try {
             sh 'docker stop colrates-proxy'
+        } catch (err) {
+            echo "${err}"
         }
-        catchError {
+        try {
             sh 'docker rm colrates-proxy'
+        } catch (err) {
+            echo "${err}"
         }
         proxy.run('--name colrates-proxy -d --restart=always -e RATES_HOST=${params.RATES_HOST} -e RATES_PORT=${params.RATES_PORT}')
     }
