@@ -7,7 +7,7 @@ SECRET_KEY = 'ip8x7v(vmlug3zu+pqix_5@zw)&4ku@+dvv(rr&fw9q7m4m1wd'
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["localhost",  "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost",  "127.0.0.1", "hedwig", "192.168.0.108"]
 
 DATABASES = {
     'default': {
