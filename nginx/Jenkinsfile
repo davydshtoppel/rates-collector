@@ -6,8 +6,8 @@ node('docker && python') {
     }
 
     stage('Build image') {
+        sh 'pip install -r requirements.txt'
         dir('colrates/src') {
-            sh 'pip install -r requirements.txt'
             sh 'python3 manage.py collectstatic --noinput'
         }
         dir('nginx') {
