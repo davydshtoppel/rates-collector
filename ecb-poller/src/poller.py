@@ -1,9 +1,9 @@
-from confuse import Configuration
 from xml.etree import ElementTree
 from datetime import datetime, date
 
 import requests
 import json
+import os
 
 
 class Rate:
@@ -54,24 +54,51 @@ class EcbServer:
         return self.parse_ecb_response(response.content)
 
 
+class RatesCollectorException(Exception):
+    def __init__(self, response):
+        self.message = f'Error from Rates Collector. Status code: {response.status_code},' \
+                       f' response body: {response.content}'
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return self.message
+
+
 class RatesCollector:
     def __init__(self, url):
         self.url = url
+
+    def last_update(self):
+        response = requests.get(f'{self.url}/rates/api/latest/?base=EUR')
+        if response.status_code == 200:
+            rates = json.loads(response.content)
+            return datetime.strptime(rates['date'], '%Y-%m-%d').date()
+        elif response.status_code != 404:
+            raise RatesCollectorException(response)
+        return None
 
     def update_rates(self, daily_rates: DailyRates):
         day = daily_rates.date.strftime('%Y-%m-%d')
         rates = [{'currency': x.currency, 'rate': x.value} for x in daily_rates.rates]
         body = {'rates': [{'base': 'EUR', 'values': rates}]}
-        requests.put(f'{self.url}/rates/{day}/', json.dumps(body))
+        response = requests.put(f'{self.url}/rates/api/{day}/', json.dumps(body))
+        if response.status_code != 200:
+            raise RatesCollectorException(response)
 
 
-# env variable ECBDIR
+rc_url = os.getenv('RATES_URL', 'http://localhost:8000')
 ecb = EcbServer('https://www.ecb.europa.eu')
-rc = RatesCollector('http://localhost:8000')
-# rc.update_rates(ecb.daily_rates())
-for it in ecb.history_rates():
-    rc.update_rates(it)
+rc = RatesCollector(rc_url)
 
-# config = Configuration('ECB')
-# runtime = config['AWS']['Lambda']['Runtime'].get()
-# print(runtime)
+last_rates = rc.last_update()
+if not last_rates:
+    for it in ecb.history_rates():
+        rc.update_rates(it)
+else:
+    current_date = datetime.now().date()
+    if last_rates != current_date:
+        ecb_last_rates = ecb.daily_rates()
+        if ecb_last_rates.date != last_rates:
+            rc.update_rates(ecb_last_rates)

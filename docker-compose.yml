@@ -1,6 +1,14 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=shtodav
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=colrates
   colrates:
     build:
       context: .
@@ -15,20 +23,12 @@ services:
       - DATABASE_NAME=colrates
     depends_on:
       - postgres
-  postgres:
-    image: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=shtodav
-      - POSTGRES_PASSWORD=secret
-      - POSTGRES_DB=colrates
-  postgres-admin:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-  nginx:
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+  colrates-proxy:
     build:
       context: nginx/
       dockerfile: Dockerfile
@@ -39,6 +39,19 @@ services:
       - RATES_PORT=8000
     depends_on:
       - colrates
+  ecb-poller:
+    build:
+      context: .
+      dockerfile: ecb-poller/Dockerfile
+    environment:
+      - RATES_URL=http://colrates-proxy
+    depends_on:
+      - colrates-proxy
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 5
 
 volumes:
   postgres_data:

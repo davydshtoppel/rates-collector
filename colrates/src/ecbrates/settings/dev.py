@@ -72,6 +72,11 @@ LOGGING = {
             'handlers': ['console', 'file'],
             'propagate': True,
         },
+        'rates.views': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         # 'django.request': {
         #     'handlers': ['mail_admins'],
         #     'level': 'ERROR',
