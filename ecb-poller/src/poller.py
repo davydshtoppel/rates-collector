@@ -83,7 +83,7 @@ class RatesCollector:
         day = daily_rates.date.strftime('%Y-%m-%d')
         rates = [{'currency': x.currency, 'rate': x.value} for x in daily_rates.rates]
         body = {'rates': [{'base': 'EUR', 'values': rates}]}
-        response = requests.put(f'{self.url}/rates/api/{day}/', json.dumps(body))
+        response = requests.patch(f'{self.url}/rates/api/{day}/', json.dumps(body))
         if response.status_code != 200:
             raise RatesCollectorException(response)
 

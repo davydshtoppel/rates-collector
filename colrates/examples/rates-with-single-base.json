@@ -1,0 +1,17 @@
+{
+  "rates": [
+    {
+      "base": "USD",
+      "values": [
+        {
+          "currency": "EUR",
+          "rate": 0.23
+        },
+        {
+          "currency": "RUB",
+          "rate": 79.8
+        }
+      ]
+    }
+  ]
+}

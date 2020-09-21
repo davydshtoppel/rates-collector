@@ -41,18 +41,29 @@ class CurrencyCache:
 currency_cache = CurrencyCache()
 
 
-class RatesView(View):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+class DailyRatesView(View):
 
     def put(self, request, day):
-        print(request.body)
+        logger.info("Request body: %s", request.body)
         body = json.loads(request.body)
         Rate.objects.filter(date=day).delete()
         for base_rates in body['rates']:
             base = base_rates['base']
             base = currency_cache.get_currency(base)
+            for single_rate in base_rates['values']:
+                currency = single_rate['currency']
+                rate = single_rate['rate']
+                currency = currency_cache.get_currency(currency)
+                Rate.objects.create(base=base, currency=currency, date=day, value=rate)
+        return JsonResponse({})
+
+    def patch(self, request, day):
+        logger.info("Request body: %s", request.body)
+        body = json.loads(request.body)
+        for base_rates in body['rates']:
+            base = base_rates['base']
+            base = currency_cache.get_currency(base)
+            Rate.objects.filter(date=day, base=base).delete()
             for single_rate in base_rates['values']:
                 currency = single_rate['currency']
                 rate = single_rate['rate']
