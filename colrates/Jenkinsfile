@@ -6,7 +6,9 @@ node('docker') {
     }
 
     stage('Build image') {
-        colrates = docker.build("davydstoppel/colrates", "-f colrates/Dockerfile .")
+        dir('colrates') {
+            colrates = docker.build('davydstoppel/colrates', '-f Dockerfile .')
+        }
     }
 
     stage('Run container') {
