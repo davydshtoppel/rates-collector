@@ -3,11 +3,11 @@ FROM python
 
 RUN apt-get update && apt-get install postgresql gcc python3-dev musl-dev -y --no-install-recommends
 
-RUN mkdir /opt/rates-collector
-WORKDIR /opt/rates-collector
+RUN mkdir /opt/colrates
+WORKDIR /opt/colrates
 
-ADD colrates/src ./
-ADD colrates/start-server.sh .
+ADD src ./
+ADD start-server.sh .
 ADD requirements.txt .
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -25,4 +25,4 @@ RUN pip install psycopg2
 
 EXPOSE 8000
 STOPSIGNAL SIGTERM
-CMD ["/opt/rates-collector/start-server.sh"]
+CMD ["/opt/colrates/start-server.sh"]

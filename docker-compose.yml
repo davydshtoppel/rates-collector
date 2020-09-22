@@ -11,8 +11,8 @@ services:
       - POSTGRES_DB=colrates
   colrates:
     build:
-      context: .
-      dockerfile: colrates/Dockerfile
+      context: colrates/
+      dockerfile: Dockerfile
     environment:
       - DJANGO_SUPERUSER_USERNAME=shtodav
       - DJANGO_SUPERUSER_PASSWORD=secret
@@ -30,8 +30,8 @@ services:
         max_attempts: 3
   colrates-proxy:
     build:
-      context: nginx/
-      dockerfile: Dockerfile
+      context: colrates/
+      dockerfile: proxy.Dockerfile
     ports:
     - 80:80
     environment:

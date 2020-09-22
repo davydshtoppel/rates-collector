@@ -36,8 +36,8 @@ DATABASES = {
     }
 }
 
-STATIC_ROOT = os.path.join(BASE_DIR.parent.parent, "nginx/static/")
-MEDIA_ROOT = os.path.join(BASE_DIR.parent.parent, "nginx/media/")
+STATIC_ROOT = os.path.join(BASE_DIR.parent, "static/")
+MEDIA_ROOT = os.path.join(BASE_DIR.parent, "media/")
 
 LOGGING = {
     'version': 1,

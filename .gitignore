@@ -2,8 +2,8 @@ venv/
 .idea/
 __pycache__/
 
-nginx/static
-nginx/media
+static/
+media/
 
 *.log
 *.sqlite3

@@ -6,12 +6,10 @@ node('docker && python') {
     }
 
     stage('Build image') {
-        sh 'pip install -r requirements.txt'
-        dir('colrates/src') {
-            sh 'python3 manage.py collectstatic --noinput'
-        }
-        dir('nginx') {
-            proxy = docker.build('davydstoppel/colrates-proxy')
+        dir('colrates') {
+            sh 'pip install -r requirements.txt'
+            sh 'python3 src/manage.py collectstatic --noinput'
+            proxy = docker.build('davydstoppel/colrates-proxy', "-f proxy.Dockerfile .")
         }
     }
 
