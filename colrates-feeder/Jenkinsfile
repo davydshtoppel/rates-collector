@@ -1,0 +1,32 @@
+node('docker') {
+    def feeder
+
+    stage('Clone repository') {
+        checkout scm
+    }
+
+    stage('Build image') {
+        dir('colrates-feeder') {
+            feeder = docker.build('davydstoppel/colrates-feeder', '-f Dockerfile .')
+        }
+    }
+
+    stage('Run container') {
+        def container = 'colrates-feeder'
+        try {
+            sh "docker stop $container"
+        } catch (err) {
+        }
+        try {
+            sh "docker rm $container"
+        } catch (err) {
+        }
+        feeder.run("--name $container --network=depl1 -e RATES_URL=${params.RATES_URL}")
+    }
+
+    stage('Push image') {
+        feeder.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+            feeder.push("latest")
+        }
+    }
+}
