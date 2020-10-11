@@ -38,12 +38,9 @@ LOGGING = {
         },
     },
     'loggers': {
-        'root': {
-            'handlers': ['console'],
-            'propagate': True,
-        },
         'django': {
             'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
         'rates.views': {

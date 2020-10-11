@@ -4,6 +4,12 @@ __pycache__/
 
 static/
 media/
+node_modules/
 
 *.log
 *.sqlite3
+
+*.sublime-project
+*.sublime-workspace
+
+package-lock.json
